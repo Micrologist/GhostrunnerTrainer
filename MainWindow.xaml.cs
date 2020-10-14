@@ -46,7 +46,7 @@ namespace GhostrunnerTrainer
 
 		float xVel, yVel, zVel, xPos, yPos, zPos, vLook, hLook;
 		bool ghost, god, noclip;
-		int charLFS, limit;
+		int charLFS;
 		float[] storedPos = new float[5] { 0f, 0f, 0f, 0f, 0f };
 
 
@@ -61,7 +61,6 @@ namespace GhostrunnerTrainer
 			kbHook.HookedKeys.Add(System.Windows.Forms.Keys.F3);
 			kbHook.HookedKeys.Add(System.Windows.Forms.Keys.F5);
 			kbHook.HookedKeys.Add(System.Windows.Forms.Keys.F6);
-			limit = 0;
 
 			updateTimer = new Timer
 			{
@@ -254,8 +253,6 @@ namespace GhostrunnerTrainer
 
 		private void ToggleGod()
 		{
-			if (noclip)
-				return;
 			byte[] byteToWrite = new byte[1];
 			if (god)
 				byteToWrite[0] = 0x0;
@@ -263,12 +260,11 @@ namespace GhostrunnerTrainer
 				byteToWrite[0] = 0x1;
 			IncInj();
 			game.WriteBytes(godPtr, byteToWrite);
+
 		}
 
 		private void ToggleGhost()
 		{
-			if (noclip)
-				return;
 			byte[] byteToWrite = new byte[1];
 			if (ghost)
 				byteToWrite[0] = 0x0;
