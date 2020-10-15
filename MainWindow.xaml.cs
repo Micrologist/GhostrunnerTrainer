@@ -102,7 +102,6 @@ namespace GhostrunnerTrainer
 				game.WriteBytes(sumPtr, BitConverter.GetBytes(globalKeyboardHook.dc));
 			game.ReadValue<float>(vLookPtr, out vLook);
 			game.ReadValue<float>(hLookPtr, out hLook);
-
 			game.ReadValue<bool>(godPtr, out god);
 			game.ReadValue<bool>(ghostPtr, out ghost);
 			game.ReadValue<bool>(noclipPtr, out noclip);
@@ -145,6 +144,7 @@ namespace GhostrunnerTrainer
 		{
 			switch (moduleSize)
 			{
+				case 64815104:
 				case 65024000:
 					Debug.WriteLine("found demo2 v3");
 					charMoveCompDP = new DeepPointer(0x037F59B0, 0x30, 0x280, 0x0);
@@ -157,6 +157,7 @@ namespace GhostrunnerTrainer
 					break;
 				default:
 					updateTimer.Stop();
+					Console.WriteLine(moduleSize.ToString());
 					System.Windows.Forms.MessageBox.Show("This game version is not supported.", "Unsupported Game Version");
 					Environment.Exit(0);
 					break;
