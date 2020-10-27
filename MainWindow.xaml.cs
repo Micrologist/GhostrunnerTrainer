@@ -144,16 +144,15 @@ namespace GhostrunnerTrainer
 		{
 			switch (moduleSize)
 			{
-				case 64815104:
-				case 65024000:
-					Debug.WriteLine("found demo2 v3");
-					charMoveCompDP = new DeepPointer(0x037F59B0, 0x30, 0x280, 0x0);
-					capsuleDP = new DeepPointer(0x037F59B0, 0x30, 0x130, 0x0);
-					playerControllerDP = new DeepPointer(0x037F59B0, 0x30, 0xDD8, 0x0);
-					cheatManagerDP = new DeepPointer(0x037F59D8, 0x0);
-					playerCharacterDP = new DeepPointer(0x037F59B0, 0x30, 0x0);
-					worldDP = new DeepPointer(0x037F6F28, 0x178, 0x0);
-					gameModeDP = new DeepPointer(0x0397C958, 0x128, 0x0);
+				case 78057472:
+					Debug.WriteLine("found steam1");
+					charMoveCompDP = new DeepPointer(0x042E16B8, 0x30, 0x288, 0x0);
+					capsuleDP = new DeepPointer(0x042E16B8, 0x30, 0x130, 0x0);
+					playerControllerDP = new DeepPointer(0x042E16B8, 0x30, 0xCC0, 0x0);
+					cheatManagerDP = new DeepPointer(0x042DFED8, 0x0);
+					playerCharacterDP = new DeepPointer(0x042E16B8, 0x30, 0x0);
+					worldDP = new DeepPointer(0x042E1678, 0x1A8, 0x0);
+					gameModeDP = new DeepPointer(0x0455C860, 0x128, 0x0);
 					break;
 				default:
 					updateTimer.Stop();
@@ -183,8 +182,8 @@ namespace GhostrunnerTrainer
 
 			IntPtr playerControllerPtr;
 			playerControllerDP.DerefOffsets(game, out playerControllerPtr);
-			vLookPtr = playerControllerPtr + 0x280;
-			hLookPtr = playerControllerPtr + 0x284;
+			vLookPtr = playerControllerPtr + 0x288;
+			hLookPtr = playerControllerPtr + 0x28C;
 
 			IntPtr cheatManagerPtr;
 			cheatManagerDP.DerefOffsets(game, out cheatManagerPtr);
@@ -198,11 +197,11 @@ namespace GhostrunnerTrainer
 
 			IntPtr gameModePtr;
 			gameModeDP.DerefOffsets(game, out gameModePtr);
-			sumPtr = gameModePtr + 0x380;
+			sumPtr = gameModePtr + 0x388;
 
 			IntPtr worldPtr;
 			worldDP.DerefOffsets(game, out worldPtr);
-			injPtr = worldPtr + 0x284;
+			injPtr = worldPtr + 0x28C;
 		}
 
 		private void InputKeyDown(object sender, KeyEventArgs e)
@@ -286,7 +285,7 @@ namespace GhostrunnerTrainer
 		}
 
 		private void IncInj()
-		{
+		{ 
 			int current;
 			game.ReadValue<int>(injPtr, out current);
 			game.WriteBytes(injPtr, BitConverter.GetBytes(current + 1));
