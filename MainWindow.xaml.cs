@@ -16,8 +16,13 @@ namespace GhostrunnerTrainer
 		Timer updateTimer;
 		Process game;
 		public bool hooked = false;
-		DeepPointer cheatManagerDP, capsuleDP, charMoveCompDP, playerControllerDP, playerCharacterDP, worldDP, gameModeDP;
-		IntPtr xVelPtr, yVelPtr, zVelPtr, xPosPtr, yPosPtr, zPosPtr, vLookPtr, hLookPtr, ghostPtr, godPtr, noclipPtr, movePtr, clipmovePtr, airPtr, collisionPtr, sumPtr, injPtr;
+		DeepPointer cheatManagerDP, capsuleDP, charMoveCompDP, playerControllerDP, playerCharacterDP, worldDP, gameModeDP, worldSettingsDP;
+		IntPtr xVelPtr, yVelPtr, zVelPtr, xPosPtr, yPosPtr, zPosPtr, vLookPtr, hLookPtr, ghostPtr, godPtr, noclipPtr, movePtr, clipmovePtr, airPtr, collisionPtr, sumPtr, injPtr, gameSpeedPtr;
+
+		private void gameSpeedBtn_Click(object sender, RoutedEventArgs e)
+		{
+			ChangeGameSpeed();
+		}
 
 		private void teleBtn_Click(object sender, RoutedEventArgs e)
 		{
@@ -44,7 +49,7 @@ namespace GhostrunnerTrainer
 			ToggleGhost();
 		}
 
-		float xVel, yVel, zVel, xPos, yPos, zPos, vLook, hLook;
+		float xVel, yVel, zVel, xPos, yPos, zPos, vLook, hLook, gameSpeed, prefGameSpeed;
 		bool ghost, god, noclip;
 		int charLFS;
 		float[] storedPos = new float[5] { 0f, 0f, 0f, 0f, 0f };
@@ -59,8 +64,12 @@ namespace GhostrunnerTrainer
 			kbHook.HookedKeys.Add(System.Windows.Forms.Keys.F1);
 			kbHook.HookedKeys.Add(System.Windows.Forms.Keys.F2);
 			kbHook.HookedKeys.Add(System.Windows.Forms.Keys.F3);
+			kbHook.HookedKeys.Add(System.Windows.Forms.Keys.F4);
 			kbHook.HookedKeys.Add(System.Windows.Forms.Keys.F5);
 			kbHook.HookedKeys.Add(System.Windows.Forms.Keys.F6);
+			kbHook.HookedKeys.Add(System.Windows.Forms.Keys.F7);
+
+			prefGameSpeed = 1.0f;
 
 			updateTimer = new Timer
 			{
@@ -105,11 +114,17 @@ namespace GhostrunnerTrainer
 			game.ReadValue<bool>(godPtr, out god);
 			game.ReadValue<bool>(ghostPtr, out ghost);
 			game.ReadValue<bool>(noclipPtr, out noclip);
+			game.ReadValue<float>(gameSpeedPtr, out gameSpeed);
 
+			Debug.WriteLine(gameSpeed.ToString());
 			SetLabel(god, godLabel);
 			SetLabel(ghost, ghostLabel);
 			SetLabel(noclip, noclipLabel);
 
+			SetGameSpeed();
+
+			gameSpeedLabel.Content = prefGameSpeed.ToString("0.0") + "x";
+			
 			positionBlock.Text = (xPos/100).ToString("0.00") + "\n" + (yPos/100).ToString("0.00") + "\n" + (zPos/100).ToString("0.00");
 			speedBlock.Text = hVel.ToString("0.00") + " m/s";
 		}
@@ -152,6 +167,7 @@ namespace GhostrunnerTrainer
 					cheatManagerDP = new DeepPointer(0x042DFED8, 0x0);
 					playerCharacterDP = new DeepPointer(0x042E16B8, 0x30, 0x0);
 					worldDP = new DeepPointer(0x042E1678, 0x1A8, 0x0);
+					worldSettingsDP = new DeepPointer(0x042E1678, 0x1A8, 0x20, 0x240, 0x0);
 					gameModeDP = new DeepPointer(0x0455C860, 0x128, 0x0);
 					break;
 				case 78036992:
@@ -162,6 +178,7 @@ namespace GhostrunnerTrainer
 					cheatManagerDP = new DeepPointer(0x0430B3F0, 0x0);
 					playerCharacterDP = new DeepPointer(0x0430CC48, 0x30, 0x0);
 					worldDP = new DeepPointer(0x0430CC10, 0x1A8, 0x0);
+					worldSettingsDP = new DeepPointer(0x0430CC10, 0x1A8, 0x20, 0x240, 0x0);
 					gameModeDP = new DeepPointer(0x04587F20, 0x128, 0x0);
 					break;
 				case 77885440:
@@ -172,13 +189,14 @@ namespace GhostrunnerTrainer
 					cheatManagerDP = new DeepPointer(0x042E88F8, 0x0);
 					playerCharacterDP = new DeepPointer(0x042EA0D0, 0x30, 0x0);
 					worldDP = new DeepPointer(0x042EA098, 0x1A8, 0x0);
+					worldSettingsDP = new DeepPointer(0x042EA098, 0x1A8, 0x20, 0x240, 0x0);
 					gameModeDP = new DeepPointer(0x04565320, 0x128, 0x0);
 					break;
 
 				default:
 					updateTimer.Stop();
 					Console.WriteLine(moduleSize.ToString());
-					System.Windows.Forms.MessageBox.Show("This game version is not supported.", "Unsupported Game Version");
+					System.Windows.Forms.MessageBox.Show("This game version ("+moduleSize.ToString()+") is not supported.", "Unsupported Game Version");
 					Environment.Exit(0);
 					break;
 			}
@@ -223,6 +241,10 @@ namespace GhostrunnerTrainer
 			IntPtr worldPtr;
 			worldDP.DerefOffsets(game, out worldPtr);
 			injPtr = worldPtr + 0x28C;
+
+			IntPtr worldSettingsPtr;
+			worldSettingsDP.DerefOffsets(game, out worldSettingsPtr);
+			gameSpeedPtr = worldSettingsPtr + 0x2E8;
 		}
 
 		private void InputKeyDown(object sender, KeyEventArgs e)
@@ -237,6 +259,9 @@ namespace GhostrunnerTrainer
 					break;
 				case Keys.F3:
 					ToggleNoclip();
+					break;
+				case Keys.F4:
+					ChangeGameSpeed();
 					break;
 				case Keys.F5:
 					StorePosition();
@@ -334,6 +359,34 @@ namespace GhostrunnerTrainer
 		private void InputKeyUp(object sender, KeyEventArgs e)
 		{
 			e.Handled = true;
+		}
+
+		private void ChangeGameSpeed()
+		{
+			switch (prefGameSpeed)
+			{
+				case 1.0f:
+					prefGameSpeed = 2.0f;
+					break;
+				case 2.0f:
+					prefGameSpeed = 4.0f;
+					break;
+				case 4.0f:
+					prefGameSpeed = 0.5f;
+					break;
+				case 0.5f:
+					prefGameSpeed = 1.0f;
+					break;
+				default:
+					prefGameSpeed = 1.0f;
+					break;
+			}
+		}
+
+		private void SetGameSpeed()
+		{
+			if((gameSpeed == 1.0f || gameSpeed == 2.0f || gameSpeed == 4.0f || gameSpeed == 0.5f) && gameSpeed != prefGameSpeed)
+				game.WriteBytes(gameSpeedPtr, BitConverter.GetBytes(prefGameSpeed));
 		}
 	}
 }
