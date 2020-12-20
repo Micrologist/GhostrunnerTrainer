@@ -203,6 +203,17 @@ namespace GhostrunnerTrainer
 					worldSettingsDP = new DeepPointer(0x0430CC10, 0x1A8, 0x20, 0x240, 0x0);
 					gameModeDP = new DeepPointer(0x04587F20, 0x128, 0x0);
 					break;
+				case 78168064:
+					Debug.WriteLine("found gog5");
+					charMoveCompDP = new DeepPointer(0x04328538, 0x30, 0x288, 0x0);
+					capsuleDP = new DeepPointer(0x04328538, 0x30, 0x130, 0x0);
+					playerControllerDP = new DeepPointer(0x04328538, 0x30, 0xE0, 0x0);
+					cheatManagerDP = new DeepPointer(0x04326CE8, 0x0);
+					playerCharacterDP = new DeepPointer(0x04328538, 0x30, 0x0);
+					worldDP = new DeepPointer(0x04328548, 0x1A8, 0x0);
+					worldSettingsDP = new DeepPointer(0x04328548, 0x1A8, 0x20, 0x240, 0x0);
+					gameModeDP = new DeepPointer(0x045A3C20, 0x128, 0x0);
+					break;	
 				case 77885440:
 					Debug.WriteLine("found egs1");
 					charMoveCompDP = new DeepPointer(0x042EA0D0, 0x30, 0x288, 0x0);
